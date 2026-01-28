@@ -20,7 +20,7 @@ class Product extends Model
     public function brand() { return $this->belongsTo(Brand::class); }
     public function category() { return $this->belongsTo(Category::class); }
     public function images() { return $this->hasMany(ProductImage::class)->orderBy('sort'); }
-    public function vehicles() { return $this->belongsToMany(Vehicle::class)->withTimestamps(); }
+    public function vehicles() { return $this->belongsToMany(Vehicle::class, 'product_vehicle')->withTimestamps(); }
     public function stocks() { return $this->hasMany(Stock::class); }
     public function prices() { return $this->hasMany(Price::class); }
     public function references() { return $this->hasMany(ProductReference::class); }

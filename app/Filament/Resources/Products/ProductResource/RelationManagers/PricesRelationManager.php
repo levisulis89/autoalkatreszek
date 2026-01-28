@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
 
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -15,55 +18,30 @@ class PricesRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Forms\Components\TextInput::make('currency')
-                ->label('Deviza')
-                ->default('HUF')
-                ->required()
-                ->maxLength(3),
-
-            Forms\Components\TextInput::make('gross')
-                ->label('Bruttó ár')
-                ->numeric()
-                ->required(),
-
-            Forms\Components\TextInput::make('net')
-                ->label('Nettó ár')
-                ->numeric()
-                ->nullable(),
-
-            Forms\Components\DateTimePicker::make('valid_from')
-                ->label('Érvényes ettől')
-                ->default(now())
-                ->required(),
-
-            Forms\Components\DateTimePicker::make('valid_to')
-                ->label('Érvényes eddig')
-                ->nullable(),
+            Forms\Components\TextInput::make('currency')->label('Deviza')->default('HUF')->required()->maxLength(3),
+            Forms\Components\TextInput::make('gross')->label('Bruttó ár')->numeric()->required(),
+            Forms\Components\TextInput::make('net')->label('Nettó ár')->numeric()->nullable(),
+            Forms\Components\DateTimePicker::make('valid_from')->label('Érvényes ettől')->default(now())->required(),
+            Forms\Components\DateTimePicker::make('valid_to')->label('Érvényes eddig')->nullable(),
         ])->columns(2);
     }
 
     public function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('gross')
-                ->label('Bruttó')
-                ->sortable(),
-
-            Tables\Columns\TextColumn::make('currency')
-                ->label('Deviza'),
-
-            Tables\Columns\TextColumn::make('valid_from')
-                ->label('Ettől')
-                ->dateTime(),
-
-            Tables\Columns\TextColumn::make('valid_to')
-                ->label('Eddig')
-                ->dateTime(),
-
-            Tables\Columns\TextColumn::make('updated_at')
-                ->label('Frissítve')
-                ->since(),
-        ]);
-}
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('gross')->label('Bruttó')->sortable(),
+                Tables\Columns\TextColumn::make('currency')->label('Deviza'),
+                Tables\Columns\TextColumn::make('valid_from')->label('Ettől')->dateTime(),
+                Tables\Columns\TextColumn::make('valid_to')->label('Eddig')->dateTime(),
+                Tables\Columns\TextColumn::make('updated_at')->label('Frissítve')->since(),
+            ])
+            ->headerActions([
+                CreateAction::make()->label('Új ár'),
+            ])
+            ->actions([
+                EditAction::make()->label('Szerkesztés'),
+                DeleteAction::make()->label('Törlés'),
+            ]);
+    }
 }

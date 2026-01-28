@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products;
 use App\Filament\Resources\Products\Pages;
 use App\Filament\Resources\Products\ProductResource\RelationManagers;
 use App\Models\Product;
+use App\Models\Vehicle;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -20,7 +21,6 @@ class ProductResource extends Resource
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
 
     protected static string|\UnitEnum|null $navigationGroup = 'Katalógus';
 
@@ -94,15 +94,25 @@ class ProductResource extends Resource
                     Forms\Components\Select::make('vehicles')
                         ->label('Kompatibilis járművek')
                         ->multiple()
-                        ->relationship('vehicles', 'id')
-                        ->getOptionLabelFromRecordUsing(fn ($r) =>
-                            $r
-                                ? trim("{$r->make} {$r->model} {$r->engine}")
-                                    . ' (' . ($r->year_from ?? '?') . '-' . ($r->year_to ?? '?') . ')'
-                                : '—'
+                        ->options(fn () => Vehicle::query()
+                            ->orderBy('make')
+                            ->orderBy('model')
+                            ->orderBy('engine')
+                            ->get()
+                            ->mapWithKeys(fn ($v) => [
+                                $v->id => trim("{$v->make} {$v->model} {$v->engine}") . ' (' . ($v->year_from ?? '?') . '-' . ($v->year_to ?? '?') . ')'
+                            ])
+                            ->toArray()
                         )
                         ->searchable()
-                        ->preload(),
+                        ->preload()
+                        ->dehydrated(false) // ne próbálja a products táblába menteni
+                        ->afterStateHydrated(function ($component, $record) {
+                            $component->state($record?->vehicles()->pluck('vehicles.id')->all() ?? []);
+                        })
+                        ->saveRelationshipsUsing(function ($record, $state) {
+                            $record->vehicles()->sync($state ?? []);
+                        }),
                 ]),
         ]);
     }
@@ -135,7 +145,7 @@ class ProductResource extends Resource
                     ->boolean()
                     ->sortable(),
             ])
-            ->actions([ ])
+            ->actions([])
             ->recordUrl(fn ($record) => static::getUrl('edit', ['record' => $record]))
             ->defaultSort('id', 'desc');
     }
@@ -143,9 +153,11 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\PricesRelationManager::class,
-            RelationManagers\StocksRelationManager::class,
-            RelationManagers\ReferencesRelationManager::class,
+            RelationManagers\ImagesRelationManager::class,
+        RelationManagers\PricesRelationManager::class,
+        RelationManagers\StocksRelationManager::class,
+        RelationManagers\ReferencesRelationManager::class,
+            
         ];
     }
 

@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
 
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -33,21 +36,19 @@ class ReferencesRelationManager extends RelationManager
     }
 
     public function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('type')
-                ->label('Típus')
-                ->badge(),
-
-            Tables\Columns\TextColumn::make('value')
-                ->label('Érték')
-                ->searchable()
-                ->wrap(),
-
-            Tables\Columns\TextColumn::make('updated_at')
-                ->label('Frissítve')
-                ->since(),
-        ]);
-}
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('type')->label('Típus')->badge(),
+                Tables\Columns\TextColumn::make('value')->label('Érték')->searchable()->wrap(),
+                Tables\Columns\TextColumn::make('updated_at')->label('Frissítve')->since(),
+            ])
+            ->headerActions([
+                CreateAction::make()->label('Új referencia'),
+            ])
+            ->actions([
+                EditAction::make()->label('Szerkesztés'),
+                DeleteAction::make()->label('Törlés'),
+            ]);
+    }
 }

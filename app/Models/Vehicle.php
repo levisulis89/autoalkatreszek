@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-
 class Vehicle extends Model
 {
     protected $guarded = [];
-    public function products() { return $this->belongsToMany(Product::class); }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_vehicle');
+    }
 }
