@@ -1,48 +1,25 @@
-<x-guest-layout>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+@extends('layouts.app')
+@section('title','Bejelentkezés')
 
-        <x-validation-errors class="mb-4" />
+@section('content')
+<div class="max-w-md border border-slate-200 bg-white p-4">
+    <h1 class="font-semibold text-lg mb-3">Bejelentkezés</h1>
 
-        @session('status')
-            <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
-                {{ $value }}
-            </div>
-        @endsession
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
-            </div>
-
-            <div class="block mt-4">
-                <label for="remember_me" class="flex items-center">
-                    <x-checkbox id="remember_me" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
-
-                <x-button class="ms-4">
-                    {{ __('Log in') }}
-                </x-button>
-            </div>
-        </form>
-    </x-authentication-card>
-</x-guest-layout>
+    <form method="post" action="{{ route('auth.login.post') }}" class="space-y-3">
+        @csrf
+        <div>
+            <label class="text-sm">Email</label>
+            <input name="email" value="{{ old('email') }}" class="w-full border border-slate-300 px-3 py-2" required>
+            @error('email')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
+        </div>
+        <div>
+            <label class="text-sm">Jelszó</label>
+            <input type="password" name="password" class="w-full border border-slate-300 px-3 py-2" required>
+        </div>
+        <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="remember" value="1"> Emlékezz rám
+        </label>
+        <button class="px-4 py-2 bg-blue-600 text-white">Belépés</button>
+    </form>
+</div>
+@endsection
