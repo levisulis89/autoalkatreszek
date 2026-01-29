@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
+
 use App\Models\Warehouse;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -22,16 +23,24 @@ class StocksRelationManager extends RelationManager
             Forms\Components\Select::make('warehouse_id')
                 ->label('Raktár')
                 ->required()
-                ->relationship('warehouse', 'name')
+                ->options(fn () => Warehouse::query()
+                    ->orderBy('name')
+                    ->get()
+                    ->mapWithKeys(fn ($w) => [
+                        $w->id => trim(($w->code ? $w->code . ' - ' : '') . $w->name),
+                    ])
+                    ->toArray()
+                )
                 ->searchable()
-                ->preload(),
-    
-            \Filament\Schemas\Components\Grid::make(2)->schema([
+                ->preload()
+                ->default(fn () => Warehouse::query()->value('id')),
+
+            Grid::make(2)->schema([
                 Forms\Components\TextInput::make('qty')
                     ->label('Készlet (db)')
                     ->numeric()
                     ->required(),
-    
+
                 Forms\Components\TextInput::make('lead_days')
                     ->label('Szállítási napok')
                     ->numeric()
@@ -40,16 +49,26 @@ class StocksRelationManager extends RelationManager
             ]),
         ]);
     }
-        
-    
 
     public function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('qty')->label('Készlet')->sortable(),
-                Tables\Columns\TextColumn::make('lead_days')->label('Nap')->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')->since()->label('Frissítve'),
+                Tables\Columns\TextColumn::make('warehouse.name')
+                    ->label('Raktár')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('qty')
+                    ->label('Készlet')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('lead_days')
+                    ->label('Nap')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->since()
+                    ->label('Frissítve'),
             ])
             ->headerActions([
                 CreateAction::make()->label('Új készlet'),

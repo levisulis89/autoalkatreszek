@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Filament\Resources\Products;
-
+use App\Models\Category;
 use App\Filament\Resources\Products\Pages;
 use App\Filament\Resources\Products\ProductResource\RelationManagers;
 use App\Models\Product;
@@ -59,9 +59,18 @@ class ProductResource extends Resource
                             ->searchable()
                             ->preload(),
 
-                        Forms\Components\Select::make('category_id')
+                            Forms\Components\Select::make('category_id')
                             ->label('Kategória')
-                            ->relationship('category', 'name')
+                            ->options(fn () => Category::query()
+                                ->with('parent')
+                                ->orderBy('parent_id')
+                                ->orderBy('sort')
+                                ->get()
+                                ->mapWithKeys(fn ($c) => [
+                                    $c->id => ($c->parent ? $c->parent->name . ' → ' : '') . $c->name
+                                ])
+                                ->toArray()
+                            )
                             ->searchable()
                             ->preload(),
                     ]),
@@ -106,7 +115,7 @@ class ProductResource extends Resource
                         )
                         ->searchable()
                         ->preload()
-                        ->dehydrated(false) // ne próbálja a products táblába menteni
+                        ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
                             $component->state($record?->vehicles()->pluck('vehicles.id')->all() ?? []);
                         })
