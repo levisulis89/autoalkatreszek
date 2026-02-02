@@ -48,8 +48,14 @@ Route::get('/', fn () => redirect()->route('catalog.index'));
 | Katalógus
 |--------------------------------------------------------------------------
 */
+
 Route::get('/katalogus', [CatalogController::class, 'index'])->name('catalog.index');
 
+// 2. oldal: jármű lista (variánsok)
+Route::get('/katalogus/jarmu', [CatalogController::class, 'vehicleIndex'])->name('catalog.vehicle');
+
+// 3. oldal: alkatrészek a kiválasztott járműre
+Route::get('/katalogus/alkatreszek/{vehicle}', [CatalogController::class, 'parts'])->name('catalog.parts');
 /*
 |--------------------------------------------------------------------------
 | Termék oldal
